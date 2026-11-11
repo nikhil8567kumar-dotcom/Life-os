@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>LIFE OS | Personal Growth Operating System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0910;
+      --bg-card: #13111e;
+      --bg-surface: #191629;
+      --bg-card-hover: #1f1b34;
+      --border-subtle: #242038;
+      --border-focus: #4b3d7a;
+      --primary: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --primary-glow: rgba(139, 92, 246, 0.25);
+      --accent: #a78bfa;
+      --accent-soft: #ddd6fe;
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --font-main: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding-bottom: 90px;
+    }
+
+    /* Top HUD */
+    .top-hud {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(10, 9, 16, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .hud-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hud-rank-badge {
+      background: linear-gradient(135deg, #4c1d95, #6d28d9);
+      color: #fff;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .hud-identity {
+      display: flex;
+      flex-direction: column;
+    }
+    .hud-name {
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+    }
+    .hud-level {
+      font-size: 11px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+    .hud-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hud-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .hud-btn:active {
+      transform: scale(0.96);
+      background: var(--border-subtle);
+    }
+    .hud-btn.ai-btn {
+      background: rgba(139, 92, 246, 0.15);
+      border-color: var(--primary);
+      color: var(--accent-soft);
+    }
+
+    /* EXP Track */
+    .exp-bar-strip {
+      height: 3px;
+      background: var(--border-subtle);
+      width: 100%;
+      position: sticky;
+      top: 57px;
+      z-index: 49;
+    }
+    .exp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #ec4899);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    /* Container */
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 18px 16px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.2px;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Briefing */
+    .briefing-box {
+      background: linear-gradient(135deg, rgba(25, 22, 41, 0.9), rgba(19, 17, 30, 0.95));
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      border-left: 3px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+    .briefing-header {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .briefing-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    /* Segment Pills */
+    .segment-bar {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      scrollbar-width: none;
+    }
+    .segment-bar::-webkit-scrollbar { display: none; }
+    .seg-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .seg-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    /* Habit List */
+    .habit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .habit-row:active {
+      transform: scale(0.99);
+    }
+    .habit-row.completed {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+    .habit-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .habit-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      border: 2px solid var(--border-focus);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: transparent;
+      transition: all 0.2s;
+    }
+    .habit-row.completed .habit-check {
+      background: var(--success);
+      border-color: var(--success);
+      color: #fff;
+    }
+    .habit-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .habit-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .habit-exp {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    /* Tasks */
+    .task-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .priority-badge {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .p-S { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+    .p-A { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid #f59e0b; }
+    .p-B { background: rgba(139, 92, 246, 0.2); color: #a78bfa; border: 1px solid #8b5cf6; }
+
+    /* Buttons */
+    .btn {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .btn-block {
+      width: 100%;
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(10, 9, 16, 0.95);
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px 14px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 10px;
+      transition: all 0.2s;
+    }
+    .nav-item.active {
+      color: var(--accent-soft);
+    }
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    /* Modals & Dialogs */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-focus);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Inputs */
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .input-field {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* Interactive 4-7-8 Breathing Pacer */
+    .breathing-box {
+      text-align: center;
+      padding: 30px 10px;
+    }
+    .breather-circle {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139,92,246,0.3), rgba(19,17,30,0.8));
+      border: 2px solid var(--primary);
+      margin: 0 auto 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 4s ease-in-out;
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+    .breather-circle.inhale {
+      transform: scale(1.35);
+      border-color: #38bdf8;
+      box-shadow: 0 0 45px rgba(56, 189, 248, 0.4);
+    }
+    .breather-circle.hold {
+      border-color: #fbbf24;
+      box-shadow: 0 0 45px rgba(251, 191, 36, 0.4);
+    }
+    .breather-circle.exhale {
+      transform: scale(0.85);
+      border-color: #a78bfa;
+      box-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+    }
+    .breather-status {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--text-main);
+    }
+    .breather-timer {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Toast */
+    .toast-center {
+      position: fixed;
+      bottom: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 18, 36, 0.95);
+      border: 1px solid var(--primary);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 200;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Status Bar -->
+  <header class="top-hud">
+    <div class="hud-left">
+      <div id="hud-rank" class="hud-rank-badge">E-RANK</div>
+      <div class="hud-identity">
+        <span id="hud-name" class="hud-name">Hunter Nikhil</span>
+        <span id="hud-level" class="hud-level">LVL 1 • 0 / 1000 EXP</span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <button class="hud-btn" onclick="LIFE_OS.toggleEmergencyUrgeModal()">🛡️ Shield</button>
+      <button class="hud-btn ai-btn" onclick="LIFE_OS.openUniversalAI()">⚡ FRIDAY</button>
+    </div>
+  </header>
+
+  <!-- Level Progression Track -->
+  <div class="exp-bar-strip">
+    <div id="hud-exp-fill" class="exp-bar-fill"></div>
+  </div>
+
+  <!-- Primary Container Views -->
+  <main class="container">
+
+    <!-- VIEW 1: HOME -->
+    <section id="view-home" class="app-view">
+      
+      <!-- AI Daily Strategic Briefing -->
+      <div class="briefing-box">
+        <div class="briefing-header">
+          <span>⚡ FRIDAY TACTICAL BRIEFING</span>
+        </div>
+        <div id="daily-briefing-content" class="briefing-text">
+          Syncing neural systems. All habits for today have been initialized. Prioritize physical readiness and vocal practice.
+        </div>
+      </div>
+
+      <!-- Today's Focus Priorities -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎯 Top Priorities Today</div>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('workspace', 'tasks')">+ Add Task</button>
+        </div>
+        <div id="home-tasks-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- 7 Core Habits Matrix -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">⚔️ 7 Permanent Core Habits</div>
+            <div id="core-habits-summary" class="card-subtitle">0 / 7 Cleared Today • +200 EXP on Perfect Day</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('missions', 'habits')">View All</button>
+        </div>
+        <div id="home-habits-list">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Quick Action Shortcuts -->
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px;">⚡ Action Quick-Launch</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('growth', 'manifest')">🧘 Manifestation</button>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('workspace', 'library')">📚 Read Book</button>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('missions', 'pmo')">🛡️ Self-Control</button>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.switchTab('workspace', 'scripts')">✍️ Creator Studio</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- VIEW 2: GROWTH -->
+    <section id="view-growth" class="app-view" style="display:none;">
+      <div class="segment-bar">
+        <button class="seg-pill active" onclick="LIFE_OS.switchSubTab('growth', 'manifest', this)">Manifestation</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('growth', 'pillars', this)">7 Pillars Radar</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('growth', 'coach', this)">FRIDAY Coach</button>
+      </div>
+
+      <!-- Sub: Manifestation Centre -->
+      <div id="sub-growth-manifest" class="growth-subview">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">✨ Manifestation Centre</div>
+            <div style="display:flex; gap:6px;">
+              <button id="manifest-mode-morning" class="btn btn-sm" onclick="LIFE_OS.setManifestMode('morning')">Morning</button>
+              <button id="manifest-mode-evening" class="btn btn-secondary btn-sm" onclick="LIFE_OS.setManifestMode('evening')">Evening</button>
+            </div>
+          </div>
+          <p id="manifest-subhead" class="card-subtitle" style="margin-bottom:14px;">5-Minute Vision & Affirmation Protocol</p>
+          
+          <div style="background:var(--bg-surface); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); margin-bottom:14px;">
+            <div style="font-size:11px; color:var(--accent); font-weight:700; text-transform:uppercase; margin-bottom:6px;" id="affirmation-index-label">Affirmation 1 of 3</div>
+            <div id="affirmation-quote" style="font-size:15px; font-weight:600; line-height:1.5; color:#fff; min-height:50px;">
+              "I am calm, disciplined, and relentlessly focused on my goals."
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:12px;">
+              <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.prevAffirmation()">← Previous</button>
+              <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.nextAffirmation()">Next →</button>
+            </div>
+          </div>
+
+          <!-- 5-Minute Visualization Timer -->
+          <div style="background:var(--bg-surface); padding:16px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); text-align:center; margin-bottom:14px;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">Mental Visualization Timer</div>
+            <div id="vis-timer-display" style="font-size:32px; font-weight:800; font-family:var(--font-mono); color:var(--accent-soft);">05:00</div>
+            <div style="display:flex; justify-content:center; gap:8px; margin-top:10px;">
+              <button id="vis-start-btn" class="btn btn-sm" onclick="LIFE_OS.toggleVisTimer()">Start</button>
+              <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.resetVisTimer()">Reset</button>
+            </div>
+          </div>
+
+          <button id="manifest-complete-btn" class="btn btn-block" onclick="LIFE_OS.completeManifestationSession()">✓ Complete & Claim +50 EXP</button>
+        </div>
+      </div>
+
+      <!-- Sub: 7 Pillars -->
+      <div id="sub-growth-pillars" class="growth-subview" style="display:none;">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">📊 7 Human Pillars Radar</div>
+          <div style="text-align:center; padding:10px 0;">
+            <svg id="pillars-radar-svg" width="280" height="260" viewBox="0 0 300 300" style="margin:0 auto; display:block;"></svg>
+          </div>
+          <div id="pillars-stat-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: FRIDAY AI Coach -->
+      <div id="sub-growth-coach" class="growth-subview" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🤖 FRIDAY Terminal</div>
+            <select id="coach-personality-select" class="input-field" style="width:auto; padding:4px 8px; font-size:12px;" onchange="LIFE_OS.setCoachPersonality(this.value)">
+              <option value="strategic">Strategic Persona</option>
+              <option value="strict">Strict Discipline</option>
+              <option value="supportive">Supportive Persona</option>
+            </select>
+          </div>
+          <div id="coach-dialogue-box" style="background:var(--bg-surface); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); height:220px; overflow-y:auto; font-size:13px; line-height:1.5; margin-bottom:10px;">
+            <!-- Dialogue Stream -->
+          </div>
+          <div style="display:flex; gap:6px;">
+            <input id="coach-user-input" type="text" class="input-field" placeholder="Ask FRIDAY for tactical guidance..." onkeydown="if(event.key==='Enter')LIFE_OS.sendCoachMessage()">
+            <button class="btn btn-sm" onclick="LIFE_OS.sendCoachMessage()">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: MISSIONS -->
+    <section id="view-missions" class="app-view" style="display:none;">
+      <div class="segment-bar">
+        <button class="seg-pill active" onclick="LIFE_OS.switchSubTab('missions', 'habits', this)">Habits</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('missions', 'pmo', this)">PMO Recovery</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('missions', 'quests', this)">Quests</button>
+      </div>
+
+      <!-- Sub: Full Habits -->
+      <div id="sub-missions-habits" class="missions-subview">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⚔️ Daily Habit Protocol</div>
+              <div class="card-subtitle">7 Permanent Foundations for Hunter Growth</div>
+            </div>
+            <span id="missions-streak-badge" class="hud-rank-badge" style="background:#059669;">🔥 5 DAY STREAK</span>
+          </div>
+          <div id="all-habits-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: PMO Recovery & Self-Control Sanctuary -->
+      <div id="sub-missions-pmo" class="missions-subview" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🛡️ Self-Control Sanctuary</div>
+              <div class="card-subtitle">Private Recovery & Dopamine Reset Engine</div>
+            </div>
+            <div id="pmo-streak-counter" class="hud-rank-badge" style="background:#0284c7;">14 DAYS CLEAN</div>
+          </div>
+          
+          <div style="background:var(--bg-surface); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); margin-bottom:14px; text-align:center;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">Current Urge Intensity</div>
+            <input id="urge-slider" type="range" min="1" max="10" value="3" style="width:100%; accent-color:var(--primary);" oninput="document.getElementById('urge-val-display').innerText=this.value+'/10'">
+            <div id="urge-val-display" style="font-size:14px; font-weight:700; color:var(--accent); font-family:var(--font-mono); margin-top:4px;">3/10</div>
+          </div>
+
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-block" onclick="LIFE_OS.startBreathingProtocol()">🫁 Emergency 4-7-8 Breathing</button>
+            <button class="btn btn-secondary btn-block" onclick="LIFE_OS.openRelapseLogger()">Log Slip Without Shame</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Quests -->
+      <div id="sub-missions-quests" class="missions-subview" style="display:none;">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">📜 Active Hunter Challenges</div>
+          <div id="quests-list-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 4: WORKSPACE -->
+    <section id="view-workspace" class="app-view" style="display:none;">
+      <div class="segment-bar">
+        <button class="seg-pill active" onclick="LIFE_OS.switchSubTab('workspace', 'tasks', this)">Tasks</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('workspace', 'library', this)">My Library</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('workspace', 'scripts', this)">Creator Studio</button>
+        <button class="seg-pill" onclick="LIFE_OS.switchSubTab('workspace', 'journal', this)">Journal</button>
+      </div>
+
+      <!-- Sub: Tasks -->
+      <div id="sub-workspace-tasks" class="workspace-subview">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 Smart Task Manager</div>
+            <button class="btn btn-sm" onclick="LIFE_OS.openAddTaskModal()">+ New Task</button>
+          </div>
+          <div id="all-tasks-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Library -->
+      <div id="sub-workspace-library" class="workspace-subview" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📚 Personal Book Library</div>
+              <div class="card-subtitle">Connect reading with your daily wisdom habit</div>
+            </div>
+            <button class="btn btn-sm" onclick="LIFE_OS.openAddBookModal()">+ Add Book</button>
+          </div>
+          <div id="books-shelf-grid" style="display:grid; grid-template-columns:1fr; gap:10px;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub: Creator Studio -->
+      <div id="sub-workspace-scripts" class="workspace-subview" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">✍️ Creator Studio & Viral Hook Polisher</div>
+            <button class="btn btn-sm" onclick="LIFE_OS.polishScriptWithFRIDAY()">⚡ Polish Hooks</button>
+          </div>
+          <div class="form-group">
+            <input id="script-title-input" type="text" class="input-field" placeholder="Script Title (e.g., Why discipline feels heavy)...">
+          </div>
+          <div class="form-group">
+            <textarea id="script-body-input" class="input-field" style="height:110px; resize:vertical;" placeholder="Write your hook, core message, and call to action here..."></textarea>
+          </div>
+          <div id="script-polish-results" style="display:none; background:var(--bg-surface); padding:12px; border-radius:var(--radius-sm); border:1px solid var(--border-focus); margin-top:8px;"></div>
+        </div>
+      </div>
+
+      <!-- Sub: Journal -->
+      <div id="sub-workspace-journal" class="workspace-subview" style="display:none;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📖 Daily Cognitive Journal</div>
+            <button class="btn btn-sm" onclick="LIFE_OS.saveJournalEntry()">Save Log</button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Today's Victory</label>
+            <input id="journal-victory" type="text" class="input-field" placeholder="What did you execute well today?">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lesson Learned</label>
+            <input id="journal-lesson" type="text" class="input-field" placeholder="What pattern will you improve tomorrow?">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: PROFILE -->
+    <section id="view-profile" class="app-view" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👤 Hunter Telemetry</div>
+          <span class="hud-rank-badge" id="profile-rank-badge">E-RANK</span>
+        </div>
+        <div style="font-size:13px; line-height:1.7; color:var(--text-muted);">
+          <div><strong>Total Earned EXP:</strong> <span id="profile-total-exp" style="color:var(--accent-soft); font-family:var(--font-mono);">0</span></div>
+          <div><strong>Clean Discipline Streak:</strong> <span id="profile-streak-count" style="color:var(--success);">5 Days</span></div>
+          <div><strong>Streak Freeze Shields:</strong> <span id="profile-shields-count">2 Available</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px;">⚙️ System Maintenance & Data</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.exportBackupJSON()">💾 Export Complete Backup (JSON)</button>
+          <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.repairStateProtocol()">🔧 Self-Healing Data Repair</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation Dock -->
+  <nav class="nav-bar">
+    <button class="nav-item active" onclick="LIFE_OS.switchTab('home', null, this)">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" onclick="LIFE_OS.switchTab('growth', 'manifest', this)">
+      <span class="nav-icon">📈</span>
+      <span>Growth</span>
+    </button>
+    <button class="nav-item" onclick="LIFE_OS.switchTab('missions', 'habits', this)">
+      <span class="nav-icon">⚔️</span>
+      <span>Missions</span>
+    </button>
+    <button class="nav-item" onclick="LIFE_OS.switchTab('workspace', 'tasks', this)">
+      <span class="nav-icon">💼</span>
+      <span>Workspace</span>
+    </button>
+    <button class="nav-item" onclick="LIFE_OS.switchTab('profile', null, this)">
+      <span class="nav-icon">👤</span>
+      <span>Profile</span>
+    </button>
+  </nav>
+
+  <!-- Emergency Urge / Breathing Modal -->
+  <div id="modal-breathing" class="modal-overlay">
+    <div class="modal-card">
+      <div class="card-header">
+        <div class="card-title">🫁 4-7-8 Sensory Calm Protocol</div>
+        <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.stopBreathingProtocol()">✕</button>
+      </div>
+      <div class="breathing-box">
+        <div id="breather-anim-circle" class="breather-circle">
+          <div id="breather-phase-text" class="breather-status">Ready</div>
+          <div id="breather-sec-text" class="breather-timer">Press Begin</div>
+        </div>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">
+          Regulates dopamine spike, clears involuntary fight-or-flight tension, and resets nervous system balance.
+        </p>
+        <button id="breathing-action-btn" class="btn btn-block" onclick="LIFE_OS.toggleBreathingLoop()">Start Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Task Modal -->
+  <div id="modal-add-task" class="modal-overlay">
+    <div class="modal-card">
+      <div class="card-header">
+        <div class="card-title">New Focus Priority</div>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-add-task').classList.remove('active')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task Description</label>
+        <input id="new-task-title" type="text" class="input-field" placeholder="e.g. 45 min Study Block">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority Level</label>
+        <select id="new-task-priority" class="input-field">
+          <option value="S">S-Rank (Crucial Focus)</option>
+          <option value="A">A-Rank (High Value)</option>
+          <option value="B">B-Rank (Standard)</option>
+        </select>
+      </div>
+      <button class="btn btn-block" onclick="LIFE_OS.saveNewTask()">Add Priority</button>
+    </div>
+  </div>
+
+  <!-- Add Book Modal -->
+  <div id="modal-add-book" class="modal-overlay">
+    <div class="modal-card">
+      <div class="card-header">
+        <div class="card-title">Add Book to Library</div>
+        <button class="btn btn-secondary btn-sm" onclick="document.getElementById('modal-add-book').classList.remove('active')">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Book Title</label>
+        <input id="new-book-title" type="text" class="input-field" placeholder="e.g. Atomic Habits">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Author</label>
+        <input id="new-book-author" type="text" class="input-field" placeholder="e.g. James Clear">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Pages</label>
+        <input id="new-book-pages" type="number" class="input-field" placeholder="300" value="250">
+      </div>
+      <button class="btn btn-block" onclick="LIFE_OS.saveNewBook()">Add to Shelf</button>
+    </div>
+  </div>
+
+  <!-- Universal Toast Feedback -->
+  <div id="sys-toast" class="toast-center">System Updated</div>
+
+  <script>
+    /**
+     * LIFE OS - Consolidated Self-Healing Engine
+     * Zero-dependency standalone architecture
+     */
+    window.LIFE_OS = (function() {
+      const STORAGE_KEY = 'LIFE_OS_V8_STABLE';
+
+      // 7 Permanent Core Habits Specification
+      const PERMANENT_HABITS = [
+        { id: 'h_morn_manif', title: '1. Morning Manifestation', desc: 'Read affirmations & 5-min visualization', exp: 50 },
+        { id: 'h_morn_med', title: '2. Morning Meditation', desc: '5–10 min breath awareness session', exp: 50 },
+        { id: 'h_physical', title: '3. Physical Training', desc: 'Boxing, calisthenics, or scheduled rest day', exp: 50 },
+        { id: 'h_reading', title: '4. Daily Reading', desc: '10 pages or 15 mins linked to library', exp: 50 },
+        { id: 'h_human_con', title: '5. Real Human Interaction', desc: '1+ meaningful real-world conversation', exp: 50 },
+        { id: 'h_content_sk', title: '6. Income & Content Skill', desc: '30–45 mins scriptwriting or digital craft', exp: 50 },
+        { id: 'h_night_manif', title: '7. Night Manifestation', desc: 'Evening affirmations & daily reflection', exp: 50 }
+      ];
+
+      // Default State
+      const DEFAULT_STATE = {
+        user: { name: 'Nikhil', level: 1, exp: 0, rank: 'E-RANK', tokens: 10 },
+        streak: { cleanDays: 5, shields: 2 },
+        habits: PERMANENT_HABITS,
+        completedHabitsToday: {}, // habitId: true
+        tasks: [
+          { id: 't1', title: 'Complete 45-min Deep Study Block', priority: 'S', done: false },
+          { id: 't2', title: 'Record @nikl.writes Instagram Hook', priority: 'S', done: false },
+          { id: 't3', title: 'Calisthenics Upper Body Session', priority: 'A', done: false }
+        ],
+        books: [
+          { id: 'b1', title: 'Atomic Habits', author: 'James Clear', totalPages: 320, curPage: 145 },
+          { id: 'b2', title: 'The Way of the Superior Man', author: 'David Deida', totalPages: 210, curPage: 60 }
+        ],
+        affirmations: {
+          morning: [
+            "I am calm, disciplined, and relentlessly focused on my goals.",
+            "My confidence is built on small daily executions, not words.",
+            "Every challenge today is training for my ultimate strength."
+          ],
+          evening: [
+            "I release today's tensions; my progress is secure.",
+            "Tomorrow I will rise sharp, ready, and unbothered by distractions."
+          ]
+        },
+        coachPersona: 'strategic',
+        pillars: {
+          Physical: 75,
+          Mental: 80,
+          Intellectual: 70,
+          Communication: 65,
+          Financial: 60,
+          Creative: 85,
+          Discipline: 80
+        }
+      };
+
+      let state = {};
+      let affirmationIndex = 0;
+      let manifestMode = 'morning';
+      let visTimerInterval = null;
+      let visTimeLeft = 300; // 5 min
+      let breathingInterval = null;
+      let isBreathingActive = false;
+
+      // Safe LocalStorage Loader with Schema Verification
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            saveState();
+            return;
+          }
+          state = JSON.parse(raw);
+          if (!state.habits || state.habits.length === 0) {
+            state.habits = PERMANENT_HABITS;
+          }
+          if (!state.completedHabitsToday) {
+            state.completedHabitsToday = {};
+          }
+        } catch (e) {
+          console.warn('Storage corrupted, self-healing applied:', e);
+          state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          saveState();
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.error('Failed to save state:', e);
+        }
+      }
+
+      function showToast(msg) {
+        const el = document.getElementById('sys-toast');
+        if (!el) return;
+        el.innerText = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 2400);
+      }
+
+      // Progression Engine: 1000 EXP per Level
+      function awardEXP(amount, reason) {
+        state.user.exp += amount;
+        let leveledUp = false;
+        while (state.user.exp >= 1000) {
+          state.user.exp -= 1000;
+          state.user.level += 1;
+          leveledUp = true;
+        }
+
+        // Rank Calculation
+        const lvl = state.user.level;
+        if (lvl >= 50) state.user.rank = 'SHADOW MONARCH';
+        else if (lvl >= 40) state.user.rank = 'NATIONAL LEVEL';
+        else if (lvl >= 30) state.user.rank = 'S-RANK';
+        else if (lvl >= 20) state.user.rank = 'A-RANK';
+        else if (lvl >= 10) state.user.rank = 'B-RANK';
+        else if (lvl >= 5) state.user.rank = 'C-RANK';
+        else if (lvl >= 2) state.user.rank = 'D-RANK';
+        else state.user.rank = 'E-RANK';
+
+        saveState();
+        updateHUD();
+        if (leveledUp) {
+          showToast(`🌟 LEVEL UP! You reached Level ${state.user.level} (${state.user.rank})`);
+        } else {
+          showToast(`+${amount} EXP: ${reason}`);
+        }
+      }
+
+      function updateHUD() {
+        document.getElementById('hud-rank').innerText = state.user.rank;
+        document.getElementById('hud-level').innerText = `LVL ${state.user.level} • ${state.user.exp} / 1000 EXP`;
+        document.getElementById('hud-name').innerText = `Hunter ${state.user.name}`;
+        const pct = Math.min(100, Math.round((state.user.exp / 1000) * 100));
+        document.getElementById('hud-exp-fill').style.width = pct + '%';
+        
+        // Profile Sync
+        const pr = document.getElementById('profile-rank-badge');
+        if (pr) pr.innerText = state.user.rank;
+        const pexp = document.getElementById('profile-total-exp');
+        if (pexp) pexp.innerText = (state.user.level - 1) * 1000 + state.user.exp;
+      }
+
+      // Render Home & Habits Matrix
+      function renderHabits() {
+        const homeList = document.getElementById('home-habits-list');
+        const allList = document.getElementById('all-habits-container');
+        if (!homeList && !allList) return;
+
+        let completedCount = 0;
+        let html = '';
+
+        state.habits.forEach(h => {
+          const isDone = !!state.completedHabitsToday[h.id];
+          if (isDone) completedCount++;
+
+          html += `
+            <div class="habit-row ${isDone ? 'completed' : ''}" onclick="LIFE_OS.toggleHabit('${h.id}')">
+              <div class="habit-left">
+                <div class="habit-check">${isDone ? '✓' : ''}</div>
+                <div>
+                  <div class="habit-name">${h.title}</div>
+                  <div class="habit-desc">${h.desc}</div>
+                </div>
+              </div>
+              <div class="habit-exp">+${h.exp} XP</div>
+            </div>
+          `;
+        });
+
+        if (homeList) homeList.innerHTML = html;
+        if (allList) allList.innerHTML = html;
+
+        const summary = document.getElementById('core-habits-summary');
+        if (summary) {
+          summary.innerText = `${completedCount} / 7 Cleared Today • ${completedCount === 7 ? '🌟 Perfect Day Cleared!' : '+200 EXP on Perfect Day'}`;
+        }
+      }
+
+      function toggleHabit(id) {
+        const wasDone = !!state.completedHabitsToday[id];
+        if (wasDone) {
+          delete state.completedHabitsToday[id];
+          showToast('Habit unchecked');
+        } else {
+          state.completedHabitsToday[id] = true;
+          const habit = state.habits.find(h => h.id === id);
+          awardEXP(habit ? habit.exp : 50, habit ? habit.title : 'Habit Complete');
+
+          // Check Perfect Day (+200 EXP)
+          const allDone = state.habits.every(h => state.completedHabitsToday[h.id]);
+          if (allDone) {
+            awardEXP(200, 'PERFECT DAY BONUS (All 7 Habits Cleared!)');
+          }
+        }
+        saveState();
+        renderHabits();
+      }
+
+      // Render Tasks
+      function renderTasks() {
+        const homeList = document.getElementById('home-tasks-list');
+        const allList = document.getElementById('all-tasks-container');
+        if (!homeList && !allList) return;
+
+        let html = '';
+        state.tasks.forEach(t => {
+          html += `
+            <div class="task-row">
+              <div class="task-left">
+                <span class="priority-badge p-${t.priority}">${t.priority}</span>
+                <span style="font-size:13px; font-weight:600; text-decoration:${t.done ? 'line-through' : 'none'}; color:${t.done ? 'var(--text-muted)' : 'var(--text-main)'};">
+                  ${t.title}
+                </span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="LIFE_OS.toggleTask('${t.id}')">
+                ${t.done ? 'Undo' : 'Complete'}
+              </button>
+            </div>
+          `;
+        });
+
+        if (homeList) homeList.innerHTML = html || '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No pending priorities. Enjoy your focus.</div>';
+        if (allList) allList.innerHTML = html || '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:10px;">No tasks. Click + New Task to plan.</div>';
+      }
+
+      function toggleTask(id) {
+        const t = state.tasks.find(x => x.id === id);
+        if (!t) return;
+        t.done = !t.done;
+        if (t.done) {
+          awardEXP(40, `Task: ${t.title}`);
+        }
+        saveState();
+        renderTasks();
+      }
+
+      // Library Engine
+      function renderLibrary() {
+        const grid = document.getElementById('books-shelf-grid');
+        if (!grid) return;
+
+        let html = '';
+        state.books.forEach(b => {
+          const pct = Math.min(100, Math.round((b.curPage / b.totalPages) * 100));
+          html += `
+            <div style="background:var(--bg-surface); padding:14px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:700; font-size:14px; color:#fff;">${b.title}</div>
+                <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">${b.author}</div>
+                <div style="font-size:11px; color:var(--accent); font-family:var(--font-mono);">${b.curPage} / ${b.totalPages} Pages (${pct}%)</div>
+              </div>
+              <button class="btn btn-sm" onclick="LIFE_OS.logBookProgress('${b.id}')">+10 Pages</button>
+            </div>
+          `;
+        });
+
+        grid.innerHTML = html || '<div style="font-size:12px; color:var(--text-muted); text-align:center;">No books in library. Click + Add Book.</div>';
+      }
+
+      function logBookProgress(id) {
+        const b = state.books.find(x => x.id === id);
+        if (!b) return;
+        b.curPage = Math.min(b.totalPages, b.curPage + 10);
+        awardEXP(30, `Read 10 pages of ${b.title}`);
+        
+        // Auto-fulfill Daily Reading habit
+        if (!state.completedHabitsToday['h_reading']) {
+          state.completedHabitsToday['h_reading'] = true;
+          awardEXP(50, '4. Daily Reading Habit Completed');
+          renderHabits();
+        }
+        saveState();
+        renderLibrary();
+      }
+
+      // 7 Pillars SVG Radar
+      function renderRadar() {
+        const svg = document.getElementById('pillars-radar-svg');
+        const grid = document.getElementById('pillars-stat-grid');
+        if (!svg || !grid) return;
+
+        const keys = Object.keys(state.pillars);
+        const total = keys.length;
+        const cx = 150, cy = 150, r = 100;
+        let points = [];
+        let gridHtml = '';
+
+        keys.forEach((key, i) => {
+          const angle = (Math.PI * 2 / total) * i - (Math.PI / 2);
+          const val = state.pillars[key] / 100;
+          const px = cx + Math.cos(angle) * (r * val);
+          const py = cy + Math.sin(angle) * (r * val);
+          points.push(`${px},${py}`);
+
+          gridHtml += `
+            <div style="background:var(--bg-surface); padding:8px 10px; border-radius:6px; font-size:11px; border:1px solid var(--border-subtle); display:flex; justify-content:space-between;">
+              <span style="color:var(--text-muted);">${key}</span>
+              <strong style="color:var(--accent-soft); font-family:var(--font-mono);">${state.pillars[key]}%</strong>
+            </div>
+          `;
+        });
+
+        svg.innerHTML = `
+          <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#242038" stroke-width="1"/>
+          <circle cx="${cx}" cy="${cy}" r="${r*0.66}" fill="none" stroke="#242038" stroke-width="1"/>
+          <circle cx="${cx}" cy="${cy}" r="${r*0.33}" fill="none" stroke="#242038" stroke-width="1"/>
+          <polygon points="${points.join(' ')}" fill="rgba(139,92,246,0.3)" stroke="#8b5cf6" stroke-width="2"/>
+        `;
+        grid.innerHTML = gridHtml;
+      }
+
+      // Manifestation Engine
+      function updateAffirmationCard() {
+        const list = state.affirmations[manifestMode] || state.affirmations.morning;
+        if (affirmationIndex >= list.length) affirmationIndex = 0;
+        if (affirmationIndex < 0) affirmationIndex = list.length - 1;
+
+        document.getElementById('affirmation-index-label').innerText = `Affirmation ${affirmationIndex + 1} of ${list.length}`;
+        document.getElementById('affirmation-quote').innerText = `"${list[affirmationIndex]}"`;
+      }
+
+      function updateVisDisplay() {
+        const m = Math.floor(visTimeLeft / 60);
+        const s = visTimeLeft % 60;
+        document.getElementById('vis-timer-display').innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+
+      // Sensory 4-7-8 Breathing Loop
+      function runBreathingStep() {
+        const circle = document.getElementById('breather-anim-circle');
+        const phase = document.getElementById('breather-phase-text');
+        const sec = document.getElementById('breather-sec-text');
+        if (!circle || !isBreathingActive) return;
+
+        // Inhale 4s
+        phase.innerText = 'INHALE';
+        sec.innerText = 'Breathe in deep (4s)';
+        circle.className = 'breather-circle inhale';
+
+        setTimeout(() => {
+          if (!isBreathingActive) return;
+          // Hold 7s
+          phase.innerText = 'HOLD';
+          sec.innerText = 'Maintain stillness (7s)';
+          circle.className = 'breather-circle hold';
+
+          setTimeout(() => {
+            if (!isBreathingActive) return;
+            // Exhale 8s
+            phase.innerText = 'EXHALE';
+            sec.innerText = 'Slowly release (8s)';
+            circle.className = 'breather-circle exhale';
+          }, 7000);
+
+        }, 4000);
+      }
+
+      // Public API
+      return {
+        init: function() {
+          loadState();
+          updateHUD();
+          renderHabits();
+          renderTasks();
+          renderLibrary();
+          renderRadar();
+          updateAffirmationCard();
+          updateVisDisplay();
+
+          // Setup coach introduction
+          const box = document.getElementById('coach-dialogue-box');
+          if (box) {
+            box.innerHTML = `<div style="color:var(--accent);"><strong>FRIDAY:</strong> Hunter, systems operational. Focus discipline is logged at 5 days. What is your objective?</div>`;
+          }
+        },
+
+        switchTab: function(tabId, subId, btn) {
+          document.querySelectorAll('.app-view').forEach(v => v.style.display = 'none');
+          const target = document.getElementById(`view-${tabId}`);
+          if (target) target.style.display = 'block';
+
+          if (btn) {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+          }
+
+          if (subId) {
+            this.switchSubTab(tabId, subId);
+          }
+        },
+
+        switchSubTab: function(tabId, subId, btn) {
+          const prefix = `sub-${tabId}-`;
+          document.querySelectorAll(`[id^="${prefix}"]`).forEach(el => el.style.display = 'none');
+          const target = document.getElementById(`${prefix}${subId}`);
+          if (target) target.style.display = 'block';
+
+          if (btn && btn.parentElement) {
+            btn.parentElement.querySelectorAll('.seg-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+          }
+
+          if (subId === 'pillars') renderRadar();
+          if (subId === 'library') renderLibrary();
+        },
+
+        toggleHabit: toggleHabit,
+        toggleTask: toggleTask,
+        logBookProgress: logBookProgress,
+
+        // Manifestation Handlers
+        setManifestMode: function(mode) {
+          manifestMode = mode;
+          affirmationIndex = 0;
+          document.getElementById('manifest-mode-morning').className = `btn btn-sm ${mode === 'morning' ? '' : 'btn-secondary'}`;
+          document.getElementById('manifest-mode-evening').className = `btn btn-sm ${mode === 'evening' ? '' : 'btn-secondary'}`;
+          updateAffirmationCard();
+        },
+
+        nextAffirmation: function() {
+          affirmationIndex++;
+          updateAffirmationCard();
+        },
+
+        prevAffirmation: function() {
+          affirmationIndex--;
+          updateAffirmationCard();
+        },
+
+        toggleVisTimer: function() {
+          const btn = document.getElementById('vis-start-btn');
+          if (visTimerInterval) {
+            clearInterval(visTimerInterval);
+            visTimerInterval = null;
+            btn.innerText = 'Resume';
+          } else {
+            btn.innerText = 'Pause';
+            visTimerInterval = setInterval(() => {
+              if (visTimeLeft > 0) {
+                visTimeLeft--;
+                updateVisDisplay();
+              } else {
+                clearInterval(visTimerInterval);
+                visTimerInterval = null;
+                btn.innerText = 'Completed';
+                showToast('🧘 Visualization complete! Claim your EXP.');
+              }
+            }, 1000);
+          }
+        },
+
+        resetVisTimer: function() {
+          if (visTimerInterval) clearInterval(visTimerInterval);
+          visTimerInterval = null;
+          visTimeLeft = 300;
+          document.getElementById('vis-start-btn').innerText = 'Start';
+          updateVisDisplay();
+        },
+
+        completeManifestationSession: function() {
+          const habitKey = manifestMode === 'morning' ? 'h_morn_manif' : 'h_night_manif';
+          if (!state.completedHabitsToday[habitKey]) {
+            state.completedHabitsToday[habitKey] = true;
+            awardEXP(50, `${manifestMode === 'morning' ? 'Morning' : 'Night'} Manifestation Complete`);
+            renderHabits();
+          } else {
+            awardEXP(25, 'Bonus Manifestation Focus');
+          }
+          saveState();
+        },
+
+        // 4-7-8 Sensory Urge Management
+        toggleEmergencyUrgeModal: function() {
+          const modal = document.getElementById('modal-breathing');
+          modal.classList.toggle('active');
+        },
+
+        startBreathingProtocol: function() {
+          this.toggleEmergencyUrgeModal();
+          this.toggleBreathingLoop();
+        },
+
+        stopBreathingProtocol: function() {
+          isBreathingActive = false;
+          if (breathingInterval) clearInterval(breathingInterval);
+          const circle = document.getElementById('breather-anim-circle');
+          if (circle) circle.className = 'breather-circle';
+          document.getElementById('modal-breathing').classList.remove('active');
+        },
+
+        toggleBreathingLoop: function() {
+          const btn = document.getElementById('breathing-action-btn');
+          if (isBreathingActive) {
+            isBreathingActive = false;
+            if (breathingInterval) clearInterval(breathingInterval);
+            btn.innerText = 'Start Session';
+          } else {
+            isBreathingActive = true;
+            btn.innerText = 'Pause Breathing';
+            runBreathingStep();
+            breathingInterval = setInterval(runBreathingStep, 19000); // 4 + 7 + 8 = 19s
+          }
+        },
+
+        openRelapseLogger: function() {
+          showToast('🛡️ Reset registered without shame. Focus on your next win.');
+        },
+
+        // Universal AI Assistant Floating Action
+        openUniversalAI: function() {
+          this.switchTab('growth', 'coach');
+          const box = document.getElementById('coach-dialogue-box');
+          if (box) {
+            box.innerHTML += `<div style="margin-top:8px; color:var(--accent-soft);"><strong>FRIDAY:</strong> How can I assist your focus right now? Tap a tactical prompt or type your query below.</div>`;
+            box.scrollTop = box.scrollHeight;
+          }
+        },
+
+        setCoachPersonality: function(val) {
+          state.coachPersona = val;
+          saveState();
+          showToast(`FRIDAY personality set to ${val}`);
+        },
+
+        sendCoachMessage: function() {
+          const inp = document.getElementById('coach-user-input');
+          const text = inp.value.trim();
+          if (!text) return;
+
+          const box = document.getElementById('coach-dialogue-box');
+          box.innerHTML += `<div style="margin-top:6px; color:#fff;"><strong>Hunter:</strong> ${text}</div>`;
+          inp.value = '';
+
+          // Heuristic tactical responses
+          setTimeout(() => {
+            let reply = "Acknowledged. Prioritize high-impact execution over mental hesitation.";
+            const q = text.toLowerCase();
+            if (q.includes('what should i do') || q.includes('today')) {
+              reply = "Your primary vectors: 1. Complete Physical Training (Boxing/Kinesthetics). 2. Record one content hook. 3. Read 10 pages.";
+            } else if (q.includes('weakness') || q.includes('pillar')) {
+              reply = "Telemetry indicates Financial & Communication are your lowest scoring pillars (60% and 65%). Schedule 20 mins for market structure analysis.";
+            } else if (q.includes('script') || q.includes('hook')) {
+              reply = "Hook rule: Hook in 3 seconds. Present high contrast: 'Most people think X, but here is what really happens...'";
+            }
+            box.innerHTML += `<div style="margin-top:6px; color:var(--accent);"><strong>FRIDAY:</strong> ${reply}</div>`;
+            box.scrollTop = box.scrollHeight;
+          }, 400);
+        },
+
+        // Creator Studio
+        polishScriptWithFRIDAY: function() {
+          const body = document.getElementById('script-body-input').value.trim();
+          const res = document.getElementById('script-polish-results');
+          if (!body) {
+            showToast('Enter script text first');
+            return;
+          }
+          res.style.display = 'block';
+          res.innerHTML = `
+            <div style="font-size:12px; font-weight:700; color:var(--accent); margin-bottom:4px;">⚡ High-Retention Variations Generated:</div>
+            <div style="font-size:12px; line-height:1.5; color:#fff; margin-bottom:6px;"><strong>Option A (Pattern Interrupt):</strong> "Stop forcing motivation. Here is the unsaid truth about discipline..."</div>
+            <div style="font-size:12px; line-height:1.5; color:#fff;"><strong>Option B (Direct Punch):</strong> "You are one decision away from a completely different life. But you keep waiting."</div>
+          `;
+          awardEXP(40, 'Creator Studio Hook Optimization');
+        },
+
+        // Modal Openers & Savers
+        openAddTaskModal: () => document.getElementById('modal-add-task').classList.add('active'),
+        saveNewTask: function() {
+          const title = document.getElementById('new-task-title').value.trim();
+          const priority = document.getElementById('new-task-priority').value;
+          if (!title) return;
+
+          state.tasks.unshift({ id: 't_' + Date.now(), title, priority, done: false });
+          saveState();
+          renderTasks();
+          document.getElementById('new-task-title').value = '';
+          document.getElementById('modal-add-task').classList.remove('active');
+          showToast('Task added to priority queue');
+        },
+
+        openAddBookModal: () => document.getElementById('modal-add-book').classList.add('active'),
+        saveNewBook: function() {
+          const title = document.getElementById('new-book-title').value.trim();
+          const author = document.getElementById('new-book-author').value.trim();
+          const pages = parseInt(document.getElementById('new-book-pages').value) || 200;
+          if (!title) return;
+
+          state.books.push({ id: 'b_' + Date.now(), title, author, totalPages: pages, curPage: 0 });
+          saveState();
+          renderLibrary();
+          document.getElementById('new-book-title').value = '';
+          document.getElementById('new-book-author').value = '';
+          document.getElementById('modal-add-book').classList.remove('active');
+          showToast('Book added to library shelf');
+        },
+
+        saveJournalEntry: function() {
+          const vic = document.getElementById('journal-victory').value.trim();
+          const les = document.getElementById('journal-lesson').value.trim();
+          if (!vic && !les) {
+            showToast('Write a victory or lesson first');
+            return;
+          }
+          awardEXP(40, 'Journal Reflection Saved');
+          document.getElementById('journal-victory').value = '';
+          document.getElementById('journal-lesson').value = '';
+          showToast('Reflection logged in memory');
+        },
+
+        repairStateProtocol: function() {
+          state = JSON.parse(JSON.stringify(DEFAULT_STATE));
+          saveState();
+          this.init();
+          showToast('State repaired to default clean status');
+        },
+
+        exportBackupJSON: function() {
+          const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+          const dl = document.createElement('a');
+          dl.setAttribute("href", str);
+          dl.setAttribute("download", `LIFE_OS_BACKUP_${Date.now()}.json`);
+          document.body.appendChild(dl);
+          dl.click();
+          dl.remove();
+          showToast('JSON Backup downloaded');
+        }
+      };
+    })();
+
+    // Guaranteed execution on load
+    window.addEventListener('DOMContentLoaded', function() {
+      window.LIFE_OS.init();
+    });
+  </script>
+</body>
+</html>
