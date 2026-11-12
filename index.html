@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1636,52 +1635,11 @@ html
       { id: 'a6', type: 'night', text: 'My mind is at peace. I release all friction and prepare for deep restorative rest.' }
     ];
 
-    const defaultBooks = [
-      {
-        id: 'b1',
-        title: 'Atomic Habits',
-        author: 'James Clear',
-        totalPages: 320,
-        currentPage: 160,
-        status: 'reading',
-        coverColor: 'from-amber-600 to-amber-900',
-        notes: 'You do not rise to the level of your goals. You fall to the level of your systems. Focus on identity shifts rather than fleeting willpower.',
-        lessons: 'The 4 Laws of Behavior Change: Make it obvious, attractive, easy, satisfying.',
-        quotes: ['"Every action you take is a vote for the type of person you wish to become."'],
-        readingLog: [{ date: getTodayDateString(), pages: 15 }]
-      },
-      {
-        id: 'b2',
-        title: 'Deep Work',
-        author: 'Cal Newport',
-        totalPages: 296,
-        currentPage: 296,
-        status: 'completed',
-        coverColor: 'from-blue-600 to-indigo-900',
-        notes: 'The ability to perform deep work is becoming increasingly rare at exactly the same time it is becoming increasingly valuable in our economy.',
-        lessons: 'Eliminate network tools during deliberate practice sessions.',
-        quotes: ['"Clarity about what matters provides clarity about what does not."'],
-        readingLog: []
-      }
-    ];
+    const defaultBooks = [];
 
-    const defaultScripts = [
-      {
-        id: 's1',
-        title: 'Why 99% of Men Fail at Dopamine Reset',
-        platform: 'YouTube Longform',
-        hook: 'Most people treat dopamine detox like a prison sentence instead of a neural recalibration.',
-        body: 'Point 1: They cut out cheap dopamine without replacing it with constructive dopamine from physical training and reading.\nPoint 2: The urge isn’t an enemy; it is raw creative fuel waiting to be transmuted into scripts and heavy bag rounds.\nPoint 3: The 90-second rule for neurological urges.',
-        cta: 'Save this protocol and commit to 14 days clean.',
-        status: 'in_progress',
-        updatedAt: getTodayDateString()
-      }
-    ];
+    const defaultScripts = [];
 
-    const defaultIdeas = [
-      { id: 'i1', text: 'How to structure boxing rounds for mental toughness', tag: 'Physical' },
-      { id: 'i2', text: 'The Hunter mindset: Viewing every challenge as an EXP quest', tag: 'Discipline' }
-    ];
+    const defaultIdeas = [];
 
     const defaultRewards = [
       { id: 'r1', title: '1-Hour Video Game Session', costExp: 150, redeemedCount: 0 },
@@ -1704,11 +1662,7 @@ html
       { id: 'ach12', title: 'S-Rank Sovereign', desc: 'Reach Hunter Level 76', icon: '🌌', unlocked: false }
     ];
 
-    const defaultTasks = [
-      { id: 't1', title: 'Heavy bag rounds & 50 pushups', priority: 'high', category: 'Physical', completed: false, isTop3: true },
-      { id: 't2', title: 'Draft hook & body for next YouTube script', priority: 'high', category: 'Financial', completed: false, isTop3: true },
-      { id: 't3', title: 'Read Chapter 4 of Atomic Habits & log notes', priority: 'medium', category: 'Intellectual', completed: false, isTop3: true }
-    ];
+    const defaultTasks = [];
 
     function buildInitialState() {
       const today = getTodayDateString();
@@ -1739,21 +1693,21 @@ html
         rewards: defaultRewards,
         achievements: defaultAchievements,
         growthCategories: {
-          Physical: 72,
-          Mental: 78,
-          Intellectual: 80,
-          Communication: 52,
-          Financial: 64,
-          Creative: 68,
-          Discipline: 75
+          Physical: 0,
+          Mental: 0,
+          Intellectual: 0,
+          Communication: 0,
+          Financial: 0,
+          Creative: 0,
+          Discipline: 0
         },
         pmo: {
-          streakDays: 14,
-          personalBest: 28,
+          streakDays: 0,
+          personalBest: 0,
           lastRelapseDate: null,
           relapses: [],
-          urgesConquered: 6,
-          triggers: ['Late Night Phone', 'Stress / Anxiety Relief']
+          urgesConquered: 0,
+          triggers: []
         },
         calendarCurrentMonth: new Date().getMonth(),
         calendarCurrentYear: new Date().getFullYear(),
@@ -1763,7 +1717,7 @@ html
 
     // Load State from LocalStorage
     let appState = null;
-    const STORAGE_KEY = 'life_os_state_v1';
+    const STORAGE_KEY = 'life_os_state_v4';
 
     function loadState() {
       try {
@@ -1793,7 +1747,9 @@ html
       if (!appState.expTransactions) appState.expTransactions = [];
       if (!appState.tasks) appState.tasks = defaultTasks;
       if (!appState.achievements) appState.achievements = defaultAchievements;
-      if (!appState.growthCategories) appState.growthCategories = buildInitialState().growthCategories;
+      if (!appState.growthCategories || (appState.growthCategories.Physical === 72 && appState.growthCategories.Intellectual === 80)) {
+        appState.growthCategories = buildInitialState().growthCategories;
+      }
       if (!appState.pmo) appState.pmo = buildInitialState().pmo;
     }
 
@@ -1943,6 +1899,16 @@ html
     }
 
     // Toggle Habit with Exact Transaction Reversal Logic
+    const habitCategoryBoosts = {
+      h1: [{ cat: 'Mental', points: 2 }],
+      h2: [{ cat: 'Mental', points: 2 }],
+      h3: [{ cat: 'Physical', points: 3 }],
+      h4: [{ cat: 'Intellectual', points: 3 }],
+      h5: [{ cat: 'Communication', points: 3 }],
+      h6: [{ cat: 'Financial', points: 2 }, { cat: 'Creative', points: 2 }],
+      h7: [{ cat: 'Discipline', points: 3 }]
+    };
+
     function toggleHabit(habitId, targetDate) {
       const dateStr = targetDate || getTodayDateString();
       if (!appState.dailyLogs[dateStr]) {
@@ -1959,8 +1925,17 @@ html
         // Checking Habit
         dayLog.habits[habitId] = true;
         addExpTransaction('HABIT', habitId, habit.exp, `Habit: ${habit.title}`);
+
+        // Boost connected growth category scores
+        const boosts = habitCategoryBoosts[habitId] || (habit.category ? [{ cat: habit.category, points: 2 }] : []);
+        const boostedLabels = [];
+        boosts.forEach(b => {
+          appState.growthCategories[b.cat] = Math.min(100, (appState.growthCategories[b.cat] || 0) + b.points);
+          boostedLabels.push(`+${b.points} ${b.cat}`);
+        });
+
         playSound('complete');
-        showToast(`+${habit.exp} EXP • ${habit.title}`);
+        showToast(`+${habit.exp} EXP • ${boostedLabels.join(', ')} Growth!`);
 
         // Check if all 7 habits are completed on this day
         const completedCount = appState.habitsConfig.filter(h => dayLog.habits[h.id]).length;
@@ -1974,8 +1949,15 @@ html
         // Unchecking Habit -> Exact Reversal
         dayLog.habits[habitId] = false;
         addExpTransaction('HABIT_REVERSAL', habitId, -habit.exp, `Reversal: ${habit.title}`);
+
+        // Reverse connected growth category scores
+        const boosts = habitCategoryBoosts[habitId] || (habit.category ? [{ cat: habit.category, points: 2 }] : []);
+        boosts.forEach(b => {
+          appState.growthCategories[b.cat] = Math.max(0, (appState.growthCategories[b.cat] || 0) - b.points);
+        });
+
         playSound('reverse');
-        showToast(`-${habit.exp} EXP reversed • ${habit.title}`);
+        showToast(`-${habit.exp} EXP & Growth reversed • ${habit.title}`);
 
         // If perfect day was awarded, reverse it
         if (dayLog.perfectDayAwarded) {
@@ -1989,6 +1971,7 @@ html
       renderHomeHabits();
       renderDayCalendarModalHabits(dateStr);
       updateHeaderAndProfileMetrics();
+      renderGrowthRadar();
     }
 
     // -------------------------------------------------------------
@@ -2099,6 +2082,7 @@ html
               <div class="flex items-center space-x-2">
                 <span class="text-sm font-bold text-white truncate ${isCompleted ? 'line-through text-gray-400' : ''}">${habit.title}</span>
                 <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-brand-800 text-brand-300 font-mono">+${habit.exp} EXP</span>
+                <span class="text-[9px] font-semibold px-1.5 py-0.2 rounded bg-brand-950 border border-brand-800 text-violet-300 font-mono">+${habit.category}</span>
               </div>
               <p class="text-[11px] text-gray-400 truncate mt-0.5">${habit.target} • ${habit.description}</p>
             </div>
@@ -2182,11 +2166,18 @@ html
         if (task.completed) {
           playSound('complete');
           addExpTransaction('QUEST', taskId, 20, `Priority Task: ${task.title}`);
-          showToast(`+20 EXP • Completed Task`);
+          if (task.category && appState.growthCategories[task.category] !== undefined) {
+            appState.growthCategories[task.category] = Math.min(100, appState.growthCategories[task.category] + 1);
+          }
+          showToast(`+20 EXP & +1 ${task.category || 'Discipline'} • Completed Task`);
         } else {
           playSound('reverse');
           addExpTransaction('QUEST', taskId, -20, `Reversal: Task ${task.title}`);
+          if (task.category && appState.growthCategories[task.category] !== undefined) {
+            appState.growthCategories[task.category] = Math.max(0, appState.growthCategories[task.category] - 1);
+          }
         }
+        renderGrowthRadar();
         saveState();
         renderTop3Priorities();
       }
@@ -2235,6 +2226,62 @@ html
     // -------------------------------------------------------------
     // GROWTH RADAR CANVAS & CATEGORIES
     // -------------------------------------------------------------
+    function renderWeeklyReport() {
+      // Calculate real habits done in last 7 days
+      let habitsDone7d = 0;
+      const today = new Date();
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const key = `${y}-${m}-${day}`;
+        const log = appState.dailyLogs[key];
+        if (log && log.habits) {
+          habitsDone7d += Object.values(log.habits).filter(Boolean).length;
+        }
+      }
+
+      const totalPages = appState.books.reduce((acc, b) => acc + (b.currentPage || 0), 0);
+      const consistencyPct = Math.round((habitsDone7d / 49) * 100);
+
+      // Sum weekly EXP transactions in last 7 days
+      const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const weeklyExp = (appState.expTransactions || [])
+        .filter(t => new Date(t.timestamp).getTime() >= oneWeekAgo && t.amount > 0)
+        .reduce((acc, t) => acc + t.amount, 0);
+
+      document.getElementById('reportConsistencyBadge').innerText = `${consistencyPct}% Consistency`;
+      document.getElementById('reportHabitsDone').innerText = `${habitsDone7d} / 49`;
+      document.getElementById('reportPagesRead').innerText = `${totalPages} Pages`;
+      document.getElementById('reportPmoDays').innerText = `${appState.pmo.streakDays || 0} Days`;
+      document.getElementById('reportExpEarned').innerText = `+${weeklyExp.toLocaleString()} EXP`;
+
+      // Best and weakest category
+      const categories = ['Physical', 'Mental', 'Intellectual', 'Communication', 'Financial', 'Creative', 'Discipline'];
+      const isUnassessed = categories.every(c => (appState.growthCategories[c] || 0) === 0);
+
+      if (isUnassessed) {
+        document.getElementById('reportBestCat').innerText = 'Unassessed';
+        document.getElementById('reportWeakCat').innerText = 'Unassessed';
+        document.getElementById('reportAiRecommendation').innerText = 
+          'You are starting fresh! Tap "Assess Skills" in the Growth Matrix to calibrate your baseline, and check off today\'s 7 permanent habits to start earning your first EXP.';
+      } else {
+        let best = categories[0], bScore = -1;
+        let weak = categories[0], wScore = 999;
+        categories.forEach(c => {
+          const s = appState.growthCategories[c] || 0;
+          if (s > bScore) { bScore = s; best = c; }
+          if (s < wScore) { wScore = s; weak = c; }
+        });
+        document.getElementById('reportBestCat').innerText = `${best} (${bScore}/100)`;
+        document.getElementById('reportWeakCat').innerText = `${weak} (${wScore}/100)`;
+        document.getElementById('reportAiRecommendation').innerText = 
+          `Focus deliberate practice on ${weak}. Commit to your daily habits and schedule at least one deep action session for your focus area this week.`;
+      }
+    }
+
     function renderGrowthRadar() {
       const canvas = document.getElementById('growthRadarCanvas');
       if (!canvas) return;
@@ -2249,7 +2296,7 @@ html
 
       const categories = ['Physical', 'Mental', 'Intellectual', 'Communication', 'Financial', 'Creative', 'Discipline'];
       const total = categories.length;
-      const scores = categories.map(c => appState.growthCategories[c] || 50);
+      const scores = categories.map(c => appState.growthCategories[c] ?? 0);
 
       // Draw background concentric webs
       [0.2, 0.4, 0.6, 0.8, 1.0].forEach(level => {
@@ -2294,7 +2341,7 @@ html
       ctx.beginPath();
       for (let i = 0; i < total; i++) {
         const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
-        const val = scores[i] / 100;
+        const val = scores[i] === 0 ? 0 : Math.max(0.12, scores[i] / 100);
         const x = centerX + Math.cos(angle) * radius * val;
         const y = centerY + Math.sin(angle) * radius * val;
         if (i === 0) ctx.moveTo(x, y);
@@ -2310,7 +2357,7 @@ html
       // Draw points
       for (let i = 0; i < total; i++) {
         const angle = (Math.PI * 2 / total) * i - Math.PI / 2;
-        const val = scores[i] / 100;
+        const val = scores[i] === 0 ? 0 : Math.max(0.12, scores[i] / 100);
         const x = centerX + Math.cos(angle) * radius * val;
         const y = centerY + Math.sin(angle) * radius * val;
         ctx.beginPath();
@@ -2320,18 +2367,27 @@ html
       }
 
       // Update Strengths & Weaknesses
-      let highestCat = categories[0], highestScore = -1;
-      let lowestCat = categories[0], lowestScore = 999;
-      categories.forEach(c => {
-        const score = appState.growthCategories[c] || 50;
-        if (score > highestScore) { highestScore = score; highestCat = c; }
-        if (score < lowestScore) { lowestScore = score; lowestCat = c; }
-      });
+      const isUnassessed = categories.every(c => (appState.growthCategories[c] || 0) === 0);
 
-      document.getElementById('topStrengthTitle').innerText = highestCat;
-      document.getElementById('topStrengthScore').innerText = `${highestScore}/100 score`;
-      document.getElementById('topWeaknessTitle').innerText = lowestCat;
-      document.getElementById('topWeaknessScore').innerText = `${lowestScore}/100 score`;
+      if (isUnassessed) {
+        document.getElementById('topStrengthTitle').innerText = 'Not Assessed';
+        document.getElementById('topStrengthScore').innerText = '0/100 • Tap Assess Skills';
+        document.getElementById('topWeaknessTitle').innerText = 'Not Assessed';
+        document.getElementById('topWeaknessScore').innerText = '0/100 • Tap Assess Skills';
+      } else {
+        let highestCat = categories[0], highestScore = -1;
+        let lowestCat = categories[0], lowestScore = 999;
+        categories.forEach(c => {
+          const score = appState.growthCategories[c] || 0;
+          if (score > highestScore) { highestScore = score; highestCat = c; }
+          if (score < lowestScore) { lowestScore = score; lowestCat = c; }
+        });
+
+        document.getElementById('topStrengthTitle').innerText = highestCat;
+        document.getElementById('topStrengthScore').innerText = `${highestScore}/100 score`;
+        document.getElementById('topWeaknessTitle').innerText = lowestCat;
+        document.getElementById('topWeaknessScore').innerText = `${lowestScore}/100 score`;
+      }
 
       // Render category exercises list
       renderGrowthExercisesList();
@@ -2379,8 +2435,8 @@ html
     ];
 
     const sampleWeeklyQuests = [
-      { id: 'wq1', title: '5-Day Boxing Conditioning', target: 'Hit workout habit 5 times', exp: 100, progress: '3/5', claimed: false },
-      { id: 'wq2', title: 'Content Vault Milestone', target: 'Publish 1 polished script', exp: 80, progress: '1/1', claimed: false }
+      { id: 'wq1', title: '5-Day Boxing Conditioning', target: 'Hit workout habit 5 times', exp: 100, progress: '0/5', claimed: false },
+      { id: 'wq2', title: 'Content Vault Milestone', target: 'Publish 1 polished script', exp: 80, progress: '0/1', claimed: false }
     ];
 
     function renderQuests() {
@@ -2605,7 +2661,14 @@ html
       const filtered = appState.books.filter(b => filter === 'all' ? true : b.status === filter);
 
       if (filtered.length === 0) {
-        container.innerHTML = '<p class="text-xs text-gray-400 italic py-2 text-center">No books match this category.</p>';
+        container.innerHTML = `
+          <div class="rounded-2xl bg-brand-900/40 border border-dashed border-brand-800 p-6 text-center space-y-2">
+            <div class="w-10 h-10 rounded-xl bg-brand-800/60 flex items-center justify-center text-brand-300 mx-auto text-lg">📖</div>
+            <p class="text-xs font-bold text-white">Your Book Vault is Empty</p>
+            <p class="text-[11px] text-gray-400 max-w-xs mx-auto">Track your personal reading journey. Add your first book to track pages and extract lessons.</p>
+            <button onclick="openAddBookModal()" class="px-3 py-1.5 rounded-lg bg-brand-700 hover:bg-brand-600 text-white font-semibold text-xs transition mt-1">+ Add Your First Book</button>
+          </div>
+        `;
         return;
       }
 
@@ -2706,6 +2769,10 @@ html
       // Ideas
       const ideasContainer = document.getElementById('ideasList');
       ideasContainer.innerHTML = '';
+      if (appState.ideas.length === 0) {
+        ideasContainer.innerHTML = '<p class="text-xs text-gray-400 italic py-2 text-center">Idea vault is empty. Click "+ Add Idea" to capture concepts.</p>';
+        return;
+      }
       appState.ideas.forEach(idea => {
         const item = document.createElement('div');
         item.className = 'flex items-center justify-between p-2 rounded-lg bg-brand-950 border border-brand-850 text-xs';
@@ -2732,6 +2799,16 @@ html
       // Scripts
       const scriptsContainer = document.getElementById('scriptsList');
       scriptsContainer.innerHTML = '';
+      if (appState.scripts.length === 0) {
+        scriptsContainer.innerHTML = `
+          <div class="rounded-2xl bg-brand-900/40 border border-dashed border-brand-800 p-5 text-center space-y-2">
+            <p class="text-xs font-bold text-white">No Scripts Yet</p>
+            <p class="text-[11px] text-gray-400">Craft high-leverage scripts, viral hooks, and social posts here.</p>
+            <button onclick="openNewScriptModal()" class="px-3 py-1.5 rounded-lg bg-brand-700 hover:bg-brand-600 text-white font-semibold text-xs transition">+ Create First Script</button>
+          </div>
+        `;
+        return;
+      }
       appState.scripts.forEach(script => {
         const card = document.createElement('div');
         card.className = 'rounded-xl bg-brand-900 border border-brand-800 p-3.5 space-y-2';
@@ -3427,6 +3504,7 @@ html
       } else {
         document.getElementById('growthContent-wheel').classList.add('hidden');
         document.getElementById('growthContent-report').classList.remove('hidden');
+        renderWeeklyReport();
       }
     }
 
